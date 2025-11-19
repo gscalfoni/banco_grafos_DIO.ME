@@ -1,0 +1,8 @@
+MATCH (u:User)-[:LISTENED]->(:Song)-[:BY]->(a:Artist)
+MATCH (recom:Song)-[:BY]->(a)
+WHERE NOT (u)-[:LISTENED]->(recom)
+RETURN DISTINCT
+    u.name AS usuario,
+    a.name AS artista,
+    recom.title AS recomendacao
+ORDER BY usuario, artista, recomendacao;

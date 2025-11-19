@@ -1,0 +1,19 @@
+MATCH (u:User)-[:LISTENED]->(s:Song)-[:IN_GENRE]->(g:Genre)
+WITH u, g, COUNT(s) AS plays
+ORDER BY u.name, plays DESC
+
+WITH u, COLLECT({genero: g.name, total: plays}) AS lista
+WITH u,
+     lista[0].total AS maxPlays,
+     [item IN lista WHERE item.total = lista[0].total] AS generosFavoritos
+
+UNWIND generosFavoritos AS gf
+
+MATCH (mus:Song)-[:IN_GENRE]->(:Genre {name: gf.genero})
+WHERE NOT (u)-[:LISTENED]->(mus)
+
+RETURN DISTINCT
+    u.name AS usuario,
+    gf.genero AS genero_favorito,
+    mus.title AS recomendacao
+ORDER BY usuario, genero_favorito, recomendacao;

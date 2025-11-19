@@ -1,0 +1,206 @@
+CREATE CONSTRAINT user_id_unique IF NOT EXISTS
+FOR (u:User) REQUIRE u.id IS UNIQUE;
+
+CREATE CONSTRAINT song_id_unique IF NOT EXISTS
+FOR (s:Song) REQUIRE s.id IS UNIQUE;
+
+CREATE CONSTRAINT artist_id_unique IF NOT EXISTS
+FOR (a:Artist) REQUIRE a.id IS UNIQUE;
+
+CREATE CONSTRAINT artist_name_unique IF NOT EXISTS
+FOR (a:Artist) REQUIRE a.name IS UNIQUE;
+
+CREATE CONSTRAINT genre_name_unique IF NOT EXISTS
+FOR (g:Genre) REQUIRE g.name IS UNIQUE;
+
+
+MERGE (:Genre {name:"Rock"});
+MERGE (:Genre {name:"Pop"});
+MERGE (:Genre {name:"Rap"});
+MERGE (:Genre {name:"Indie"});
+MERGE (:Genre {name:"Eletronica"});
+
+
+UNWIND [
+  "Ana Ribeiro", "Bruno Martins", "Carla Souza", "Diego Lopes",
+  "Eduarda Campos", "Felipe Silva", "Gabriela Torres", "Henrique Dias",
+  "Isabela Monteiro", "João Pedro Almeida", "Karen Vieira", "Lucas Carvalho",
+  "Mariana Rocha", "Natália Ramos", "Otávio Mendes", "Paula Ferreira",
+  "Rafael Pires", "Sofia Azevedo", "Thiago Nunes", "Viviane Costa"
+] AS nome
+WITH nome, randomUUID() AS id
+MERGE (:User {id:id, name:nome});
+
+
+
+UNWIND [
+  "AC/DC", "Coldplay", "Eminem", "Daft Punk", "Nirvana",
+  "Adele", "Arctic Monkeys", "The Weeknd", "Queen", "Kendrick Lamar"
+] AS artist
+WITH artist, randomUUID() AS id
+MERGE (:Artist {id:id, name:artist});
+
+
+UNWIND [
+  {artist:"AC/DC", songs:["Back in Black","Thunderstruck","Highway to Hell"]},
+  {artist:"Coldplay", songs:["Yellow","Fix You","Viva la Vida"]},
+  {artist:"Eminem", songs:["Lose Yourself","Stan","The Real Slim Shady"]},
+  {artist:"Daft Punk", songs:["One More Time","Harder Better Faster Stronger","Around the World"]},
+  {artist:"Nirvana", songs:["Smells Like Teen Spirit","Come As You Are","Lithium"]},
+  {artist:"Adele", songs:["Hello","Rolling in the Deep","Someone Like You"]},
+  {artist:"Arctic Monkeys", songs:["Do I Wanna Know","R U Mine","Fluorescent Adolescent"]},
+  {artist:"The Weeknd", songs:["Blinding Lights","Starboy","The Hills"]},
+  {artist:"Queen", songs:["Bohemian Rhapsody","Don't Stop Me Now","Another One Bites the Dust"]},
+  {artist:"Kendrick Lamar", songs:["HUMBLE","DNA","Alright"]}
+] AS entry
+
+MATCH (a:Artist {name: entry.artist})
+UNWIND entry.songs AS titulo
+WITH a, titulo, randomUUID() AS songId
+MERGE (s:Song {id:songId, title:titulo})
+MERGE (s)-[:BY]->(a);
+
+
+
+MATCH (g:Genre {name:"Rock"})
+MATCH (a:Artist WHERE a.name IN ["AC/DC","Nirvana","Queen"])
+MATCH (s:Song)-[:BY]->(a)
+MERGE (s)-[:IN_GENRE]->(g);
+
+MATCH (g:Genre {name:"Pop"})
+MATCH (a:Artist WHERE a.name IN ["Adele","Coldplay","The Weeknd"])
+MATCH (s:Song)-[:BY]->(a)
+MERGE (s)-[:IN_GENRE]->(g);
+
+MATCH (g:Genre {name:"Rap"})
+MATCH (a:Artist WHERE a.name IN ["Eminem","Kendrick Lamar"])
+MATCH (s:Song)-[:BY]->(a)
+MERGE (s)-[:IN_GENRE]->(g);
+
+MATCH (g:Genre {name:"Indie"})
+MATCH (a:Artist {name:"Arctic Monkeys"})
+MATCH (s:Song)-[:BY]->(a)
+MERGE (s)-[:IN_GENRE]->(g);
+
+MATCH (g:Genre {name:"Eletronica"})
+MATCH (a:Artist {name:"Daft Punk"})
+MATCH (s:Song)-[:BY]->(a)
+MERGE (s)-[:IN_GENRE]->(g);
+
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Back in Black"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Thunderstruck"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Highway to Hell"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Bohemian Rhapsody"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Don't Stop Me Now"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Bohemian Rhapsody"}) MERGE (u)-[:LIKED]->(s);
+MATCH (u:User {name:"Ana Ribeiro"}), (s:Song {title:"Back in Black"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Bruno Martins"}), (s:Song {title:"Yellow"}) MERGE (u)-[:LISTENED {plays:5}]->(s);
+MATCH (u:User {name:"Bruno Martins"}), (s:Song {title:"Fix You"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Bruno Martins"}), (s:Song {title:"Viva la Vida"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Bruno Martins"}), (s:Song {title:"Blinding Lights"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Bruno Martins"}), (s:Song {title:"Starboy"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Bruno Martins"}), (s:Song {title:"Yellow"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Carla Souza"}), (s:Song {title:"Lose Yourself"}) MERGE (u)-[:LISTENED {plays:6}]->(s);
+MATCH (u:User {name:"Carla Souza"}), (s:Song {title:"Stan"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Carla Souza"}), (s:Song {title:"The Real Slim Shady"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Carla Souza"}), (s:Song {title:"HUMBLE"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Carla Souza"}), (s:Song {title:"DNA"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Carla Souza"}), (s:Song {title:"Lose Yourself"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Diego Lopes"}), (s:Song {title:"One More Time"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Diego Lopes"}), (s:Song {title:"Harder Better Faster Stronger"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Diego Lopes"}), (s:Song {title:"Around the World"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Diego Lopes"}), (s:Song {title:"One More Time"}) MERGE (u)-[:LIKED]->(s);
+MATCH (u:User {name:"Diego Lopes"}), (s:Song {title:"Around the World"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Eduarda Campos"}), (s:Song {title:"Smells Like Teen Spirit"}) MERGE (u)-[:LISTENED {plays:7}]->(s);
+MATCH (u:User {name:"Eduarda Campos"}), (s:Song {title:"Come As You Are"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Eduarda Campos"}), (s:Song {title:"Lithium"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Eduarda Campos"}), (s:Song {title:"Do I Wanna Know"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Eduarda Campos"}), (s:Song {title:"Fluorescent Adolescent"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Eduarda Campos"}), (s:Song {title:"Smells Like Teen Spirit"}) MERGE (u)-[:LIKED]->(s);
+
+
+MATCH (u:User {name:"Felipe Silva"}), (s:Song {title:"Hello"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Felipe Silva"}), (s:Song {title:"Rolling in the Deep"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Felipe Silva"}), (s:Song {title:"Someone Like You"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Felipe Silva"}), (s:Song {title:"Fix You"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Felipe Silva"}), (s:Song {title:"Viva la Vida"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Felipe Silva"}), (s:Song {title:"Rolling in the Deep"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Gabriela Torres"}), (s:Song {title:"Do I Wanna Know"}) MERGE (u)-[:LISTENED {plays:5}]->(s);
+MATCH (u:User {name:"Gabriela Torres"}), (s:Song {title:"R U Mine"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Gabriela Torres"}), (s:Song {title:"Fluorescent Adolescent"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Gabriela Torres"}), (s:Song {title:"Do I Wanna Know"}) MERGE (u)-[:LIKED]->(s);
+MATCH (u:User {name:"Gabriela Torres"}), (s:Song {title:"R U Mine"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Henrique Dias"}), (s:Song {title:"Blinding Lights"}) MERGE (u)-[:LISTENED {plays:6}]->(s);
+MATCH (u:User {name:"Henrique Dias"}), (s:Song {title:"Starboy"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Henrique Dias"}), (s:Song {title:"The Hills"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Henrique Dias"}), (s:Song {title:"Blinding Lights"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Isabela Monteiro"}), (s:Song {title:"Bohemian Rhapsody"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Isabela Monteiro"}), (s:Song {title:"Another One Bites the Dust"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Isabela Monteiro"}), (s:Song {title:"Don't Stop Me Now"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Isabela Monteiro"}), (s:Song {title:"Another One Bites the Dust"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"João Pedro Almeida"}), (s:Song {title:"Back in Black"}) MERGE (u)-[:LISTENED {plays:5}]->(s);
+MATCH (u:User {name:"João Pedro Almeida"}), (s:Song {title:"Thunderstruck"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"João Pedro Almeida"}), (s:Song {title:"Highway to Hell"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"João Pedro Almeida"}), (s:Song {title:"Back in Black"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Karen Vieira"}), (s:Song {title:"Smells Like Teen Spirit"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Karen Vieira"}), (s:Song {title:"Come As You Are"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Karen Vieira"}), (s:Song {title:"Lithium"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Karen Vieira"}), (s:Song {title:"Smells Like Teen Spirit"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Lucas Carvalho"}), (s:Song {title:"Hello"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Lucas Carvalho"}), (s:Song {title:"Someone Like You"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Lucas Carvalho"}), (s:Song {title:"Rolling in the Deep"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Lucas Carvalho"}), (s:Song {title:"Someone Like You"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Mariana Rocha"}), (s:Song {title:"One More Time"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Mariana Rocha"}), (s:Song {title:"Harder Better Faster Stronger"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Mariana Rocha"}), (s:Song {title:"Around the World"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Mariana Rocha"}), (s:Song {title:"Harder Better Faster Stronger"}) MERGE (u)-[:LIKED]->(s);
+
+
+MATCH (u:User {name:"Natália Ramos"}), (s:Song {title:"Do I Wanna Know"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Natália Ramos"}), (s:Song {title:"R U Mine"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Natália Ramos"}), (s:Song {title:"Fluorescent Adolescent"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Natália Ramos"}), (s:Song {title:"Do I Wanna Know"}) MERGE (u)-[:LIKED]->(s);
+
+
+
+MATCH (u:User {name:"Otávio Mendes"}), (s:Song {title:"Blinding Lights"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Otávio Mendes"}), (s:Song {title:"Starboy"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Otávio Mendes"}), (s:Song {title:"The Hills"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Otávio Mendes"}), (s:Song {title:"The Hills"}) MERGE (u)-[:LIKED]->(s);
+
+
+MATCH (u:User {name:"Paula Ferreira"}), (s:Song {title:"Bohemian Rhapsody"}) MERGE (u)-[:LISTENED {plays:6}]->(s);
+MATCH (u:User {name:"Paula Ferreira"}), (s:Song {title:"Don't Stop Me Now"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Paula Ferreira"}), (s:Song {title:"Another One Bites the Dust"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Paula Ferreira"}), (s:Song {title:"Bohemian Rhapsody"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Rafael Pires"}), (s:Song {title:"HUMBLE"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Rafael Pires"}), (s:Song {title:"DNA"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Rafael Pires"}), (s:Song {title:"Alright"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Rafael Pires"}), (s:Song {title:"HUMBLE"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Sofia Azevedo"}), (s:Song {title:"Smells Like Teen Spirit"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Sofia Azevedo"}), (s:Song {title:"Come As You Are"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Sofia Azevedo"}), (s:Song {title:"Lithium"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Sofia Azevedo"}), (s:Song {title:"Come As You Are"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Thiago Nunes"}), (s:Song {title:"One More Time"}) MERGE (u)-[:LISTENED {plays:5}]->(s);
+MATCH (u:User {name:"Thiago Nunes"}), (s:Song {title:"Harder Better Faster Stronger"}) MERGE (u)-[:LISTENED {plays:3}]->(s);
+MATCH (u:User {name:"Thiago Nunes"}), (s:Song {title:"Around the World"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Thiago Nunes"}), (s:Song {title:"Around the World"}) MERGE (u)-[:LIKED]->(s);
+
+MATCH (u:User {name:"Viviane Costa"}), (s:Song {title:"Hello"}) MERGE (u)-[:LISTENED {plays:4}]->(s);
+MATCH (u:User {name:"Viviane Costa"}), (s:Song {title:"Rolling in the Deep"}) MERGE (u)-[:LISTENED {plays:2}]->(s);
+MATCH (u:User {name:"Viviane Costa"}), (s:Song {title:"Someone Like You"}) MERGE (u)-[:LISTENED {plays:1}]->(s);
+MATCH (u:User {name:"Viviane Costa"}), (s:Song {title:"Hello"}) MERGE (u)-[:LIKED]->(s);
