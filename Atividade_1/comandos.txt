@@ -1,0 +1,157 @@
+CREATE CONSTRAINT user_id_unique IF NOT EXISTS
+FOR (u:User) REQUIRE u.id IS UNIQUE;
+
+CREATE CONSTRAINT movie_id_unique IF NOT EXISTS
+FOR (m:Movie) REQUIRE m.id IS UNIQUE;
+
+CREATE CONSTRAINT series_id_unique IF NOT EXISTS
+FOR (s:Series) REQUIRE s.id IS UNIQUE;
+
+CREATE CONSTRAINT genre_name_unique IF NOT EXISTS
+FOR (g:Genre) REQUIRE g.name IS UNIQUE;
+
+CREATE CONSTRAINT actor_name_unique IF NOT EXISTS
+FOR (a:Actor) REQUIRE a.name IS UNIQUE;
+CREATE CONSTRAINT director_name_unique IF NOT EXISTS
+FOR (d:Director) REQUIRE d.name IS UNIQUE;
+
+CREATE (:Genre {name: "Action"});
+CREATE (:Genre {name: "Drama"});
+CREATE (:Genre {name: "Comedy"});
+CREATE (:Genre {name: "Sci-Fi"});
+CREATE (:Genre {name: "Fantasy"});
+CREATE (:Genre {name: "Thriller"});
+CREATE (:Genre {name: "Adventure"});
+CREATE (:Genre {name: "Romance"});
+CREATE (:Genre {name: "Crime"});
+CREATE (:Genre {name: "Horror"});
+
+CREATE (:User {id: 1, name: "Alice"});
+CREATE (:User {id: 2, name: "Bruno"});
+CREATE (:User {id: 3, name: "Carla"});
+CREATE (:User {id: 4, name: "Daniel"});
+CREATE (:User {id: 5, name: "Eva"});
+CREATE (:User {id: 6, name: "Felipe"});
+CREATE (:User {id: 7, name: "Gabi"});
+CREATE (:User {id: 8, name: "Heitor"});
+CREATE (:User {id: 9, name: "Iara"});
+CREATE (:User {id: 10, name: "João"});
+
+CREATE (:Movie {id: 101, title: "Inception", year: 2010});
+CREATE (:Movie {id: 102, title: "The Matrix", year: 1999});
+CREATE (:Movie {id: 103, title: "The Dark Knight", year: 2008});
+CREATE (:Movie {id: 104, title: "Titanic", year: 1997});
+CREATE (:Movie {id: 105, title: "Forrest Gump", year: 1994});
+CREATE (:Movie {id: 106, title: "Avatar", year: 2009});
+CREATE (:Movie {id: 107, title: "Interstellar", year: 2014});
+CREATE (:Movie {id: 108, title: "Gladiator", year: 2000});
+CREATE (:Movie {id: 109, title: "The Godfather", year: 1972});
+CREATE (:Movie {id: 110, title: "Pulp Fiction", year: 1994});
+
+CREATE (:Series {id: 201, title: "Breaking Bad", seasons: 5});
+CREATE (:Series {id: 202, title: "Stranger Things", seasons: 4});
+CREATE (:Series {id: 203, title: "Friends", seasons: 10});
+CREATE (:Series {id: 204, title: "Game of Thrones", seasons: 8});
+CREATE (:Series {id: 205, title: "The Witcher", seasons: 3});
+CREATE (:Series {id: 206, title: "The Office", seasons: 9});
+CREATE (:Series {id: 207, title: "The Crown", seasons: 6});
+CREATE (:Series {id: 208, title: "Peaky Blinders", seasons: 6});
+CREATE (:Series {id: 209, title: "Black Mirror", seasons: 5});
+CREATE (:Series {id: 210, title: "The Mandalorian", seasons: 3});
+
+CREATE (:Actor {name: "Leonardo DiCaprio"});
+CREATE (:Actor {name: "Keanu Reeves"});
+CREATE (:Actor {name: "Christian Bale"});
+CREATE (:Actor {name: "Bryan Cranston"});
+CREATE (:Actor {name: "Millie Bobby Brown"});
+CREATE (:Actor {name: "Jennifer Aniston"});
+CREATE (:Actor {name: "Emilia Clarke"});
+CREATE (:Actor {name: "Henry Cavill"});
+CREATE (:Actor {name: "Matthew McConaughey"});
+CREATE (:Actor {name: "Tom Hanks"});
+
+CREATE (:Director {name: "Christopher Nolan"});
+CREATE (:Director {name: "James Cameron"});
+CREATE (:Director {name: "Lana Wachowski"});
+CREATE (:Director {name: "Vince Gilligan"});
+CREATE (:Director {name: "The Duffer Brothers"});
+CREATE (:Director {name: "David Benioff"});
+CREATE (:Director {name: "Marc Jobst"});
+CREATE (:Director {name: "Greg Daniels"});
+CREATE (:Director {name: "Steven Spielberg"});
+CREATE (:Director {name: "Quentin Tarantino"});
+
+
+
+MATCH (g1:Genre {name:"Sci-Fi"}), (g2:Genre {name:"Action"}), (g3:Genre {name:"Thriller"})
+MATCH (m:Movie {title:"Inception"})
+CREATE (m)-[:IN_GENRE]->(g1), (m)-[:IN_GENRE]->(g2), (m)-[:IN_GENRE]->(g3);
+
+MATCH (g1:Genre {name:"Sci-Fi"}), (g2:Genre {name:"Action"}), (m:Movie {title:"The Matrix"})
+CREATE (m)-[:IN_GENRE]->(g1), (m)-[:IN_GENRE]->(g2);
+
+MATCH (m:Movie {title:"The Dark Knight"}), (g1:Genre {name:"Action"}), (g2:Genre {name:"Crime"}), (g3:Genre {name:"Thriller"})
+CREATE (m)-[:IN_GENRE]->(g1), (m)-[:IN_GENRE]->(g2), (m)-[:IN_GENRE]->(g3);
+
+MATCH (m:Movie {title:"Titanic"}), (g1:Genre {name:"Romance"}), (g2:Genre {name:"Drama"})
+CREATE (m)-[:IN_GENRE]->(g1), (m)-[:IN_GENRE]->(g2);
+
+MATCH (m:Movie {title:"Avatar"}), (g1:Genre {name:"Adventure"}), (g2:Genre {name:"Fantasy"}), (g3:Genre {name:"Sci-Fi"})
+CREATE (m)-[:IN_GENRE]->(g1), (m)-[:IN_GENRE]->(g2), (m)-[:IN_GENRE]->(g3);
+
+MATCH (s:Series {title:"Breaking Bad"}), (g1:Genre {name:"Thriller"}), (g2:Genre {name:"Crime"}), (g3:Genre {name:"Drama"})
+CREATE (s)-[:IN_GENRE]->(g1), (s)-[:IN_GENRE]->(g2), (s)-[:IN_GENRE]->(g3);
+
+MATCH (s:Series {title:"Stranger Things"}), (g1:Genre {name:"Fantasy"}), (g2:Genre {name:"Sci-Fi"}), (g3:Genre {name:"Horror"})
+CREATE (s)-[:IN_GENRE]->(g1), (s)-[:IN_GENRE]->(g2), (s)-[:IN_GENRE]->(g3);
+
+MATCH (s:Series {title:"Friends"}), (g1:Genre {name:"Comedy"}), (g2:Genre {name:"Romance"})
+CREATE (s)-[:IN_GENRE]->(g1), (s)-[:IN_GENRE]->(g2);
+
+
+
+MATCH (a:Actor {name:"Leonardo DiCaprio"}), (m1:Movie {title:"Inception"}), (m2:Movie {title:"Titanic"}), (m3:Movie {title:"The Godfather"})
+CREATE (a)-[:ACTED_IN]->(m1), (a)-[:ACTED_IN]->(m2), (a)-[:ACTED_IN]->(m3);
+
+MATCH (a:Actor {name:"Keanu Reeves"}), (m1:Movie {title:"The Matrix"}), (m2:Movie {title:"Pulp Fiction"}), (m3:Movie {title:"John Wick"}) 
+FOREACH (_ IN CASE WHEN m3 IS NULL THEN [] ELSE [1] END | CREATE (a)-[:ACTED_IN]->(m1));
+
+MATCH (a:Actor {name:"Christian Bale"}), (m1:Movie {title:"The Dark Knight"}), (m2:Movie {title:"Inception"}), (m3:Movie {title:"Gladiator"})
+CREATE (a)-[:ACTED_IN]->(m1), (a)-[:ACTED_IN]->(m2), (a)-[:ACTED_IN]->(m3);
+
+MATCH (a:Actor {name:"Bryan Cranston"}), (s1:Series {title:"Breaking Bad"}), (s2:Series {title:"The Office"}), (s3:Series {title:"The Crown"})
+CREATE (a)-[:ACTED_IN]->(s1), (a)-[:ACTED_IN]->(s2), (a)-[:ACTED_IN]->(s3);
+
+MATCH (a:Actor {name:"Millie Bobby Brown"}), (s1:Series {title:"Stranger Things"}), (s2:Series {title:"The Witcher"}), (s3:Series {title:"Black Mirror"})
+CREATE (a)-[:ACTED_IN]->(s1), (a)-[:ACTED_IN]->(s2), (a)-[:ACTED_IN]->(s3);
+
+MATCH (a:Actor {name:"Jennifer Aniston"}), (s1:Series {title:"Friends"}), (s2:Series {title:"The Office"}), (s3:Series {title:"The Crown"})
+CREATE (a)-[:ACTED_IN]->(s1), (a)-[:ACTED_IN]->(s2), (a)-[:ACTED_IN]->(s3);
+
+
+
+MATCH (d:Director {name:"Christopher Nolan"}), (m1:Movie {title:"Inception"}), (m2:Movie {title:"Interstellar"}), (m3:Movie {title:"The Dark Knight"})
+CREATE (d)-[:DIRECTED]->(m1), (d)-[:DIRECTED]->(m2), (d)-[:DIRECTED]->(m3);
+
+MATCH (d:Director {name:"James Cameron"}), (m1:Movie {title:"Titanic"}), (m2:Movie {title:"Avatar"})
+CREATE (d)-[:DIRECTED]->(m1), (d)-[:DIRECTED]->(m2);
+
+MATCH (d:Director {name:"Vince Gilligan"}), (s1:Series {title:"Breaking Bad"}), (s2:Series {title:"Better Call Saul"}), (s3:Series {title:"The Crown"})
+FOREACH (_ IN CASE WHEN s2 IS NULL THEN [] ELSE [1] END | CREATE (d)-[:DIRECTED]->(s1));
+
+MATCH (d:Director {name:"The Duffer Brothers"}), (s1:Series {title:"Stranger Things"}), (s2:Series {title:"The Mandalorian"}), (s3:Series {title:"Black Mirror"})
+CREATE (d)-[:DIRECTED]->(s1), (d)-[:DIRECTED]->(s2), (d)-[:DIRECTED]->(s3);
+
+
+
+MATCH (d:Director {name:"Christopher Nolan"}), (m1:Movie {title:"Inception"}), (m2:Movie {title:"Interstellar"}), (m3:Movie {title:"The Dark Knight"})
+CREATE (d)-[:DIRECTED]->(m1), (d)-[:DIRECTED]->(m2), (d)-[:DIRECTED]->(m3);
+
+MATCH (d:Director {name:"James Cameron"}), (m1:Movie {title:"Titanic"}), (m2:Movie {title:"Avatar"})
+CREATE (d)-[:DIRECTED]->(m1), (d)-[:DIRECTED]->(m2);
+
+MATCH (d:Director {name:"Vince Gilligan"}), (s1:Series {title:"Breaking Bad"}), (s2:Series {title:"Better Call Saul"}), (s3:Series {title:"The Crown"})
+FOREACH (_ IN CASE WHEN s2 IS NULL THEN [] ELSE [1] END | CREATE (d)-[:DIRECTED]->(s1));
+
+MATCH (d:Director {name:"The Duffer Brothers"}), (s1:Series {title:"Stranger Things"}), (s2:Series {title:"The Mandalorian"}), (s3:Series {title:"Black Mirror"})
+CREATE (d)-[:DIRECTED]->(s1), (d)-[:DIRECTED]->(s2), (d)-[:DIRECTED]->(s3);
