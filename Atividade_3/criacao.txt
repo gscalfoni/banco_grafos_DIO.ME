@@ -1,0 +1,123 @@
+CREATE CONSTRAINT user_id IF NOT EXISTS FOR (u:User) REQUIRE u.id IS UNIQUE;
+CREATE CONSTRAINT post_id IF NOT EXISTS FOR (p:Post) REQUIRE p.id IS UNIQUE;
+CREATE CONSTRAINT comment_id IF NOT EXISTS FOR (c:Comment) REQUIRE c.id IS UNIQUE;
+CREATE CONSTRAINT topic_name IF NOT EXISTS FOR (t:Topic) REQUIRE t.name IS UNIQUE;
+
+UNWIND [
+  "Ana Souza","Bruno Martins","Carla Ribeiro","Diego Santos","Eduardo Lima",
+  "Fernanda Alves","Gabriel Duarte","Helena Castro","Igor Mendes","Juliana Rocha",
+  "Karen Figueiredo","Lucas Amaral","Mariana Barros","Nicolas Teixeira","Olivia Freitas",
+  "Paulo Azevedo","Queila Vilar","Rodrigo Nunes","Sabrina Lopes","Thiago Peixoto"
+] AS name
+MERGE (:User {id: randomUUID(), name: name});
+
+UNWIND [
+  "Tecnologia","Esportes","Culinária","Política","Viagem",
+  "Entretenimento","Educação","Ciência","Saúde","Música"
+] AS topicName
+MERGE (:Topic {name: topicName});
+
+UNWIND [
+  {title:"Como a IA está mudando o mundo"}, 
+  {title:"Receita de bolo de cenoura perfeito"},
+  {title:"Os melhores destinos de 2025"},
+  {title:"Guia completo de exercícios para iniciantes"},
+  {title:"Explicando buracos negros de forma simples"},
+  {title:"Os maiores clássicos do rock"},
+  {title:"Como economizar tempo estudando"},
+  {title:"Dicas para correr mais rápido"},
+  {title:"Como aprender programação do zero"},
+  {title:"Planejando sua primeira viagem internacional"}
+] AS p
+MERGE (:Post {id: randomUUID(), title: p.title});
+
+UNWIND [
+  "Muito bom!", "Excelente explicação!", "Não concordo totalmente.",
+  "Aprendi bastante.", "Vou tentar isso hoje.", "Obrigado pela dica!",
+  "Isso faz muito sentido.", "Gostei da abordagem.", "Interessante.",
+  "Vou compartilhar com amigos."
+] AS text
+MERGE (:Comment {id: randomUUID(), text: text});
+
+
+MATCH (u:User {name:"Ana Souza"}), (p:Post {title:"Como a IA está mudando o mundo"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Bruno Martins"}), (p:Post {title:"Receita de bolo de cenoura perfeito"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Carla Ribeiro"}), (p:Post {title:"Os melhores destinos de 2025"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Diego Santos"}), (p:Post {title:"Guia completo de exercícios para iniciantes"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Eduardo Lima"}), (p:Post {title:"Explicando buracos negros de forma simples"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Fernanda Alves"}), (p:Post {title:"Os maiores clássicos do rock"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Gabriel Duarte"}), (p:Post {title:"Como economizar tempo estudando"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Helena Castro"}), (p:Post {title:"Dicas para correr mais rápido"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Igor Mendes"}), (p:Post {title:"Como aprender programação do zero"}) MERGE (u)-[:POSTED]->(p);
+MATCH (u:User {name:"Juliana Rocha"}), (p:Post {title:"Planejando sua primeira viagem internacional"}) MERGE (u)-[:POSTED]->(p);
+
+MATCH (p:Post {title:"Como a IA está mudando o mundo"}), (t:Topic {name:"Tecnologia"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Receita de bolo de cenoura perfeito"}), (t:Topic {name:"Culinária"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Os melhores destinos de 2025"}), (t:Topic {name:"Viagem"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Guia completo de exercícios para iniciantes"}), (t:Topic {name:"Esportes"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Explicando buracos negros de forma simples"}), (t:Topic {name:"Ciência"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Os maiores clássicos do rock"}), (t:Topic {name:"Música"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Como economizar tempo estudando"}), (t:Topic {name:"Educação"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Dicas para correr mais rápido"}), (t:Topic {name:"Esportes"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Como aprender programação do zero"}), (t:Topic {name:"Tecnologia"}) MERGE (p)-[:HAS_TOPIC]->(t);
+MATCH (p:Post {title:"Planejando sua primeira viagem internacional"}), (t:Topic {name:"Viagem"}) MERGE (p)-[:HAS_TOPIC]->(t);
+
+MATCH (a:User {name:"Ana Souza"}), (b:User {name:"Bruno Martins"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Ana Souza"}), (b:User {name:"Carla Ribeiro"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Bruno Martins"}), (b:User {name:"Diego Santos"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Carla Ribeiro"}), (b:User {name:"Diego Santos"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Diego Santos"}), (b:User {name:"Eduardo Lima"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Gabriel Duarte"}), (b:User {name:"Helena Castro"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Igor Mendes"}), (b:User {name:"Juliana Rocha"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Lucas Amaral"}), (b:User {name:"Mariana Barros"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Nicolas Teixeira"}), (b:User {name:"Olivia Freitas"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Paulo Azevedo"}), (b:User {name:"Queila Vilar"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Rodrigo Nunes"}), (b:User {name:"Sabrina Lopes"}) MERGE (a)-[:FOLLOWS]->(b);
+MATCH (a:User {name:"Thiago Peixoto"}), (b:User {name:"Ana Souza"}) MERGE (a)-[:FOLLOWS]->(b);
+
+MATCH (u:User {name:"Ana Souza"}), (p:Post {title:"Como a IA está mudando o mundo"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Ana Souza"}), (p:Post {title:"Os maiores clássicos do rock"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Bruno Martins"}), (p:Post {title:"Receita de bolo de cenoura perfeito"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Bruno Martins"}), (p:Post {title:"Os melhores destinos de 2025"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Carla Ribeiro"}), (p:Post {title:"Os melhores destinos de 2025"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Diego Santos"}), (p:Post {title:"Guia completo de exercícios para iniciantes"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Eduardo Lima"}), (p:Post {title:"Explicando buracos negros de forma simples"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Fernanda Alves"}), (p:Post {title:"Os maiores clássicos do rock"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Gabriel Duarte"}), (p:Post {title:"Como economizar tempo estudando"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Helena Castro"}), (p:Post {title:"Dicas para correr mais rápido"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Igor Mendes"}), (p:Post {title:"Como aprender programação do zero"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Juliana Rocha"}), (p:Post {title:"Planejando sua primeira viagem internacional"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Lucas Amaral"}), (p:Post {title:"Como economizar tempo estudando"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Mariana Barros"}), (p:Post {title:"Top 5 jogos de 2024"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Nicolas Teixeira"}), (p:Post {title:"Deep learning na prática"}) MERGE (u)-[:LIKED]->(p);
+MATCH (u:User {name:"Olivia Freitas"}), (p:Post {title:"Melhor show ao vivo que já vi"}) MERGE (u)-[:LIKED]->(p);
+
+MATCH (u:User {name:"Ana Souza"}), (c:Comment {text:"Muito bom!"}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Muito bom!"}), (p:Post {title:"Como a IA está mudando o mundo"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Bruno Martins"}), (c:Comment {text:"Excelente explicação!"}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Excelente explicação!"}), (p:Post {title:"Receita de bolo de cenoura perfeito"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Carla Ribeiro"}), (c:Comment {text:"Não concordo totalmente."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Não concordo totalmente."}), (p:Post {title:"Os melhores destinos de 2025"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Diego Santos"}), (c:Comment {text:"Aprendi bastante."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Aprendi bastante."}), (p:Post {title:"Guia completo de exercícios para iniciantes"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Eduardo Lima"}), (c:Comment {text:"Vou tentar isso hoje."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Vou tentar isso hoje."}), (p:Post {title:"Dicas para correr mais rápido"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Fernanda Alves"}), (c:Comment {text:"Obrigado pela dica!"}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Obrigado pela dica!"}), (p:Post {title:"Como economizar tempo estudando"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Gabriel Duarte"}), (c:Comment {text:"Isso faz muito sentido."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Isso faz muito sentido."}), (p:Post {title:"Como aprender programação do zero"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Helena Castro"}), (c:Comment {text:"Gostei da abordagem."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Gostei da abordagem."}), (p:Post {title:"Planejando sua primeira viagem internacional"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Igor Mendes"}), (c:Comment {text:"Interessante."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Interessante."}), (p:Post {title:"Explicando buracos negros de forma simples"}) MERGE (c)-[:ON_POST]->(p);
+
+MATCH (u:User {name:"Juliana Rocha"}), (c:Comment {text:"Vou compartilhar com amigos."}) MERGE (u)-[:COMMENTED]->(c);
+MATCH (c:Comment {text:"Vou compartilhar com amigos."}), (p:Post {title:"Planejando sua primeira viagem international"}) MERGE (c)-[:ON_POST]->(p);

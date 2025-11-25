@@ -1,0 +1,39 @@
+//Tópicos mais populares (likes)
+MATCH (:User)-[:LIKED]->(p:Post)-[:HAS_TOPIC]->(t:Topic)
+RETURN t.name AS topic, COUNT(*) AS likes
+ORDER BY likes DESC;
+
+
+//User mais populares (levando em conta seguidores e informações dos posts)
+MATCH (u:User)
+OPTIONAL MATCH (u)<-[:FOLLOWS]-(f)
+OPTIONAL MATCH (u)-[:POSTED]->(p)<-[:LIKED]-(l)
+OPTIONAL MATCH (u)-[:POSTED]->(p)<-[:ON_POST]-(c)
+WITH u, COUNT(DISTINCT f) AS followers,
+     COUNT(DISTINCT l) AS likes,
+     COUNT(DISTINCT c) AS comments
+RETURN u.name AS user, followers, likes, comments,
+       followers + likes + comments AS score
+ORDER BY score DESC
+LIMIT 10;
+
+
+//Posts mais populares (comentários+likes)
+MATCH (p:Post)
+OPTIONAL MATCH (p)<-[:LIKED]-(u1)
+OPTIONAL MATCH (p)<-[:ON_POST]-(c)
+WITH p, COUNT(DISTINCT u1) AS likes, COUNT(DISTINCT c) AS comments
+RETURN p.title AS title, likes, comments, likes + comments AS popularity
+ORDER BY popularity DESC
+LIMIT 10;
+
+
+//Posts populares dos users (likes)
+MATCH (u:User)-[:FOLLOWS]->(f:User)-[:POSTED]->(p:Post)
+OPTIONAL MATCH (p)<-[:LIKED]-(x)
+WITH u, p, COUNT(x) AS likes
+RETURN u.name AS user, p.title AS recommendedPost, likes
+ORDER BY likes DESC
+LIMIT 50;
+
+
